@@ -14,15 +14,29 @@ int main(){
     s[3]=1.1932472e-2;
     double t=0;
     double G=2.959122e-4;
-
-    FILE *fich;
-    fich = fopen("positions.txt","w");
+    double r = 0, v = 0, E = 0, p = 0, L = 0;
+    double Mt=2.4476e-6;
+    FILE *position;
+    FILE *energie;
+    FILE *distance;
+    position = fopen("positions.txt","w");
+    energie = fopen("energies.txt","w");
+    distance = fopen("distance.txt","w");
     for (t=0;t<400;t+=0.01){
         s=runge_kutta(s,0.01,t,G);
-        printf("%lf,%lf\n", s[0],s[1]);
-        fprintf(fich, "%lf,%lf\n", s[0],s[1]);
+        printf("%lf,%lf\n", s[0],s[2]);
+        fprintf(position, "%lf,%lf\n", s[0],s[2]);
+        r = sqrt(s[0]*s[0]+s[2]*s[2]);
+        v = sqrt(s[1]*s[1]+s[3]*s[3]);
+        E=0.5*Mt*v*v-G*Mt/(r);
+        p = Mt*v;
+        L = r * v;
+        fprintf(energie, "%lf,%lf,%lf\n", E,p,L);
+        fprintf(distance, "%lf,%lf\n", r,t);
     }
-    fclose(fich);
+    fclose(position);
+    fclose(energie);
+    fclose(distance);
 }
 
 dvector f(double t,dvector s,double G){
