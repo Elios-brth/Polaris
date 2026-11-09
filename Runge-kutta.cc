@@ -15,9 +15,10 @@ int main(){
     double G=2.959122e-4;
     double r , v , E , p , L ;
     double Mt=3.0032e-6;
-    double n = 10000;
-    double T = 365;
-    double h = T/n;
+    double n = 1000;
+    double T[9] = {90,230,370,700,4400,11000,31000,61000,91000};
+    double tfin, h;
+
     FILE *position;
     FILE *energie;
     FILE *distance;
@@ -26,8 +27,11 @@ int main(){
     distance = fopen("distance.txt","w");
     dvector R;
     for (int i=0;i<9;i+=1){
-        for (t=0;t<T;t+=h){
-            R=runge_kutta(s[i],0.01,t,G);
+        R = s[i];
+        tfin = T[i];
+        h = tfin/n;
+        for (t=0;t<tfin;t+=h){
+            R=runge_kutta(R,h,t,G);
             printf("%lf,%lf\n", R[0],R[2]);
             fprintf(position, "%lf,%lf\n", R[0],R[2]);
             r = sqrt(R[0]*R[0]+R[2]*R[2]);
@@ -38,6 +42,7 @@ int main(){
             fprintf(energie, "%lf,%lf,%lf\n", E,p,L);
             fprintf(distance, "%lf,%lf\n", r,t);
         }
+        fprintf(position, "\n");
     }
     fclose(position);
     fclose(energie);
