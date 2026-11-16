@@ -2,35 +2,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-nom=['Soleil','Mercure','Venus','Terre','Mars','Jupiter','Saturne','Uranus','Neptune','Pluton']
+nom=['soleil','mercure','venus','terre','mars','jupiter','saturne','uranus','neptune','pluton']
 
-Soleil=[]
-Mercure=[]
-Venus=[]
-Terre=[]
-Mars=[]
-Jupiter=[]
-Saturne=[]
-Uranus=[]
-Neptune=[]
-Pluton=[]
 i=0
-positions = {planete : [] for planete in nom}
-with open('positions.txt','r') as fichier:
+
+distance = np.zeros((10,5000))
+
+E,p,L = np.loadtxt('energies_10.txt',delimiter=',',unpack=True)
+
+temps = np.loadtxt('temps_10.txt',unpack=True)
+
+
+j=0
+with open('distance_10.txt','r') as fichier:
     for ligne in fichier:
-        valeurs = ligne.split(",")
-        positions[nom[i]].append([float(valeurs[0]),float(valeurs[1]),float(valeurs[2])])
+        
+        distance[i,j]=ligne
         i+=1
         if i == 10:
             i = 0
+            j+=1
+            
+
+
+fig = plt.figure()
+ax = plt.axes(projection='3d')
+plt.show
 for j in range (0,10):
-    x = [p[0] for p in positions[nom[j]]]
-    y = [p[1] for p in positions[nom[j]]]
-    z = [p[2] for p in positions[nom[j]]]
-    x_2 = np.array(x)
-    y_2 = np.array(y)
-    z_2 = np.array(z)
-    plt.plot(x,y,label=nom[j])
-    x = []
-    y = []
-    z = []
+    
+    x,y,z=np.loadtxt(nom[j]+'_10.txt',delimiter = ',',unpack=True)
+    ax.plot3D(x,y,z)
+    #ax.view_init(elev=90,azim=115,roll=0)
+    
+    r = distance[j,:]
+    plt.figure(5)
+    plt.plot(temps,r,label = nom[j])
+    plt.title("distance au soleil")
+    r= []
+    plt.legend()
+plt.figure(2)
+plt.plot(temps,E)
+plt.title("energie")
+plt.figure(3)
+plt.plot(temps,p)
+plt.title("impulsion")
+plt.figure(4)  
+plt.plot(temps,L)
+plt.title("moment cinétique")

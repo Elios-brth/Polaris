@@ -14,21 +14,49 @@ int main(){
     double t=0;
     double G=2.959122e-4;
     double M[10]={1,1.6e-7,2.4476e-6,3.0032e-6,3.2268e-7,9.5425e-4,2.8572e-4,4.3643e-5,5.1486e-5,6.6060e-9};
-    double n = 50000;
-    double tfin=100000;
+    double n = 5000;
+    double tfin=1000;
     double h=tfin/n;
+    double r,v,E,L,p;
+    char nom[10][20]={"soleil_10.txt","mercure_10.txt","venus_10.txt","terre_10.txt","mars_10.txt","jupiter_10.txt","saturne_10.txt","uranus_10.txt","neptune_10.txt","pluton_10.txt"};
 
-    FILE *position;
-    position = fopen("positions.txt","w");
+    FILE *position[10];
+    FILE *energie;
+    FILE *distance;
+    FILE *temps;
+    
+    energie = fopen("energies_10.txt","w");
+    distance = fopen("distance_10.txt","w");
+    temps = fopen("temps_10.txt","w");
+
+    for (int i=0;i<10;i+=1){
+            position[i] = fopen(nom[i],"w");}
+
     for (t=0;t<tfin;t+=h){
         R=runge_kutta(h,t,G,R,M);
+        E = 0;
+        p = 0;
+        L = 0;
         for (int i=0;i<10;i+=1){
-        printf("%lf,%lf,%lf\n", R[i][0],R[i][2],R[i][4]);
-        fprintf(position, "%lf,%lf,%lf\n", R[i][0],R[i][2],R[i][4]);
+            //printf("%lf,%lf,%lf\n", R[i][0],R[i][2],R[i][4]);
+            fprintf(position[i], "%lf,%lf,%lf\n", R[i][0],R[i][2],R[i][4]);
+            r = sqrt(R[i][0]*R[i][0]+R[i][2]*R[i][2]+R[i][4]*R[i][4]);
+            v = sqrt(R[i][1]*R[i][1]+R[i][3]*R[i][3]+R[i][5]*R[i][5]);
+            E += M[i]*0.5*v*v-G/r; //energie totale divisée par Mt
+            p += M[i]*v; //impulsion divisée par Mt
+            L += sqrt(pow(R[i][2]*R[i][5]-R[i][4]*R[i][3],2)+pow(R[i][4]*R[i][1]-R[i][0]*R[i][5],2)+pow(R[i][0]*R[i][3]-R[i][2]*R[i][1],2)); //moment cinétique divisé par Mt (L/Mt = x*vy-y*vx)
+            fprintf(distance, "%lf\n", r);
         }
+        printf("%lf,%lf,%lf\n", E,p,L);
+        fprintf(energie, "%.10lf,%.10lf,%.10lf\n", E,p,L);
+        fprintf(temps, "%lf\n", t);
     }
-    fclose(position);
-
+    
+    for (int i=0;i<10;i+=1){
+            fclose(position[i]);}
+    fclose(energie);
+    fclose(distance);
+    fclose(temps);
 }
 
 dvector f(double t,dvector s,double G,std::vector<dvector> R,double M[]){
