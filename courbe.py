@@ -6,13 +6,13 @@ nom=['soleil','mercure','venus','terre','mars','jupiter','saturne','uranus','nep
 
 i=0
 
-distance = np.zeros((10,5000))
+distance = np.zeros((10,100000))
 
 E,p,L = np.loadtxt('energies_10.txt',delimiter=',',unpack=True)
 
 temps = np.loadtxt('temps_10.txt',unpack=True)
 
-
+theta , t= np.loadtxt('perihelie.txt',delimiter=',',unpack=True)
 j=0
 with open('distance_10.txt','r') as fichier:
     for ligne in fichier:
@@ -37,6 +37,7 @@ for j in range (0,10):
     r = distance[j,:]
     plt.figure(5)
     plt.plot(temps,r,label = nom[j])
+    plt.ylim((0,3))
     plt.title("distance au soleil")
     r= []
     plt.legend()
@@ -49,3 +50,6 @@ plt.title("impulsion")
 plt.figure(4)  
 plt.plot(temps,L)
 plt.title("moment cinétique")
+plt.figure(6)  
+plt.plot(t,theta)
+plt.title("theta")

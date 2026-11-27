@@ -14,20 +14,26 @@ int main(){
     double t=0;
     double G=2.959122e-4;
     double M[10]={1,1.6e-7,2.4476e-6,3.0032e-6,3.2268e-7,9.5425e-4,2.8572e-4,4.3643e-5,5.1486e-5,6.6060e-9};
-    double n = 5000;
-    double tfin=1000;
+    double n = 100000;
+    double tfin=40000;
     double h=tfin/n;
-    double r,v,E,L,p;
+    double r_peri[2];
+    double r;
+    double v,E,L,p;
+    double pos_peri[2];
+    double theta;
+    
     char nom[10][20]={"soleil_10.txt","mercure_10.txt","venus_10.txt","terre_10.txt","mars_10.txt","jupiter_10.txt","saturne_10.txt","uranus_10.txt","neptune_10.txt","pluton_10.txt"};
-
     FILE *position[10];
     FILE *energie;
     FILE *distance;
     FILE *temps;
+    FILE *perihelie;
     
     energie = fopen("energies_10.txt","w");
     distance = fopen("distance_10.txt","w");
     temps = fopen("temps_10.txt","w");
+    perihelie = fopen("perihelie.txt","w");
 
     for (int i=0;i<10;i+=1){
             position[i] = fopen(nom[i],"w");}
@@ -38,16 +44,32 @@ int main(){
         p = 0;
         L = 0;
         for (int i=0;i<10;i+=1){
-            //printf("%lf,%lf,%lf\n", R[i][0],R[i][2],R[i][4]);
             fprintf(position[i], "%lf,%lf,%lf\n", R[i][0],R[i][2],R[i][4]);
             r = sqrt(R[i][0]*R[i][0]+R[i][2]*R[i][2]+R[i][4]*R[i][4]);
+            if (t == 0 && i == 1){
+            	r_peri[1]=r;}
+            if (t > h && i == 1){
+            	if (r > r_peri[1] && r_peri[1] < r_peri[0]){
+            	theta = atan2(pos_peri[1],pos_peri[0]);
+            	fprintf(perihelie,"%lf,%lf\n",theta,t);
+            	}}
+            if (t > 0 && i == 1){
+            	r_peri[0] = r_peri[1];
+            	r_peri[1] = r;
+            	pos_peri[0]=R[i][0]-R[0][0];
+            	pos_peri[1]=R[i][2]-R[0][2];}
+            
+            
+            
             v = sqrt(R[i][1]*R[i][1]+R[i][3]*R[i][3]+R[i][5]*R[i][5]);
-            E += M[i]*0.5*v*v-G/r; //energie totale divisée par Mt
-            p += M[i]*v; //impulsion divisée par Mt
-            L += sqrt(pow(R[i][2]*R[i][5]-R[i][4]*R[i][3],2)+pow(R[i][4]*R[i][1]-R[i][0]*R[i][5],2)+pow(R[i][0]*R[i][3]-R[i][2]*R[i][1],2)); //moment cinétique divisé par Mt (L/Mt = x*vy-y*vx)
+            if (i != 0){
+            	E += M[i]*0.5*pow(v,2)-M[i]*M[0]*G/r; }
+            else {
+            	E += M[i]*0.5*pow(v,2);}
+            p += M[i]*v; 
+            L += sqrt(pow(R[i][2]*R[i][5]-R[i][4]*R[i][3],2)+pow(R[i][4]*R[i][1]-R[i][0]*R[i][5],2)+pow(R[i][0]*R[i][3]-R[i][2]*R[i][1],2)); 
             fprintf(distance, "%lf\n", r);
         }
-        printf("%lf,%lf,%lf\n", E,p,L);
         fprintf(energie, "%.10lf,%.10lf,%.10lf\n", E,p,L);
         fprintf(temps, "%lf\n", t);
     }
